@@ -1,4 +1,4 @@
-# 22.01.2026 (Week 1 / Day 2) ~3h
+# 22.01.2026 (Week 1 / Day 3) ~3h
 
 Сегодня работа с Data class: equals/hashCode, copy, destructuring.
 
