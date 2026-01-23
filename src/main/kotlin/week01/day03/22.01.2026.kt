@@ -49,6 +49,18 @@ fun upgradeEngine(car: Car, hpDelta: Int): Car {
     return car.copy(engine = car.engine.copy(hp = car.engine.hp + hpDelta))
 }
 
+fun validateCar(car: Car): List<String> {
+    val errorSheet = mutableListOf<String>()
+    if (car.vin.length != 17) errorSheet.add("vin error")
+    if (car.year !in 1980..2026) errorSheet.add("year error")
+    if (car.mileageKm < 0) errorSheet.add("mileageKm error")
+    if (car.owner != null && car.owner.experienceYears < 0) {
+        errorSheet.add("owner experienceYears error")
+    }
+
+    return errorSheet
+}
+
 
 fun main() {
 
@@ -80,5 +92,10 @@ fun main() {
     val b47Hp = b47.component1()
     val b47Volume = b47.component2()
     val b47Type = b47.component3()
+
+    val (name, phone, expYears) = car1.owner ?: Owner("Unknown", null, 0)
+    println("Owner name: $name, phone: $phone, experienceYears: $expYears")
+
+    println("validateCar: car1 = ${validateCar(car1)}")
 
 }
