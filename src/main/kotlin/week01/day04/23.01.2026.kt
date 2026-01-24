@@ -1,4 +1,4 @@
-package week01.day4
+package week01.day04
 
 // #1
 enum class Gear(val ratio: Double) {

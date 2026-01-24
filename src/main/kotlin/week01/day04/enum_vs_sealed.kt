@@ -1,4 +1,4 @@
-package week01.day4
+package week01.day04
 
 // NEW, PAID, FAILED
 
