@@ -111,5 +111,15 @@ fun main() {
     println()
 
     // Задача 1 - Print summary (List)
+    for (car in cars) {
+        println(car)
+    }
+    println()
 
+    // Задача 2 - Filter (List → List)
+    val filtered = cars.filter { it.mileageKm < 100000 }
+    val vins = filtered.map { it.vin }
+
+    println("Count ${filtered.size}; VIN: $vins")
+    println()
 }
