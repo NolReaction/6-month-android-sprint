@@ -1,4 +1,4 @@
-# 23.01.2026 (Week 1 / Day 5) ~4.h
+# 23.01.2026 (Week 1 / Day 5) ~6.h
 
 Сегодня работа с Extensions + scope functions: apply/also/run/with/let.
 
@@ -9,8 +9,8 @@
 - [x] apply понял
 - [x] also понял
 - [x] run понял
-- [x] 
-- [x]
+- [x] with понял
+- [x] let понял
 ---
 > Тема довольно объёмная и трудная.
 >

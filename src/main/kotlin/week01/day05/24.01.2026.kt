@@ -22,6 +22,23 @@ fun Car.debugCheck(): Car {
     }
 }
 
+
+// with: короткое описание двигателя
+fun engineSummary(engine: Engine): String {
+    return with(engine) {"Engine hp: ${this.hp}, volume: ${this.volume}, type: ${this.type}"}
+}
+
+
+// let: два значения через Pair (без if)
+fun String.toWordsCount(): Int {
+    val parts = this.split(" ")
+    var count = 0
+    for (p in parts) {
+        if (p.isNotEmpty()) count++
+    }
+    return count
+}
+
 fun main() {
     // extensions
     val car1 = Car("PEPE228", "Fa", 100, 500000, Engine(10000, 1000.0, "PokoProMax4Ultra"), Owner("Me", "+5", 1000))
@@ -57,4 +74,15 @@ fun main() {
     // also: встроенная проверка-инвариант
     car1.debugCheck().debugCheck()
     println()
+
+    // with: короткое описание двигателя
+    val b58 = Engine(387, 3.0, "B")
+    println(engineSummary(b58))
+    println()
+
+    // let: два значения через Pair (без if)
+    val testStr = "hello kotlin scope functions"
+        .let { it.toWordsCount() }
+        .let { "Words = $it" }
+    println(testStr)
 }
