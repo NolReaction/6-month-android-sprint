@@ -53,7 +53,7 @@ fun main() {
     println(imGuest.orGuest())
     println()
 
-    // scope functions
+    // Scope functions
     // apply (чтоб не писать по несколько раз carProfile.put я использую apply). Тут даже this не понадобился.
     val carProfile = mutableMapOf<String, Any>()
     carProfile.apply {

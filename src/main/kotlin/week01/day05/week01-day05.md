@@ -1,4 +1,4 @@
-# 23.01.2026 (Week 1 / Day 5) ~6.h
+# 24.01.2026 (Week 1 / Day 5) ~6.h
 
 Сегодня работа с Extensions + scope functions: apply/also/run/with/let.
 
