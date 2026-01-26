@@ -1,6 +1,13 @@
 package week01.day07
 
-import java.sql.Time
+import java.time.Instant
+import java.time.Duration
+
+val aliases = mapOf(
+    "exit" to "exit", "quit" to "exit",
+    "del" to "del", "delete" to "del", "dl" to "del",
+    "help" to "help", "h" to "help"
+)
 
 fun helloMessage() {
     println(
@@ -15,6 +22,8 @@ fun helloMessage() {
                 del[id]         - delete Task with id
                 stat            - show statistic
                 exit            - quit
+                
+                (example - find 12) (example - del 12) (example - exit)
         """.trimIndent()
     )
 }
@@ -29,16 +38,16 @@ sealed class TaskStatus {
     object New : TaskStatus()
 
     data class InProgress(
-        val startedAt: Time
+        val startedAt: Instant
     ) : TaskStatus()
 
     data class Done(
-        val endAt: Time,
-        val spentTime: Time
+        val finishedAt: Instant,
+        val spentTime: Duration
     ) : TaskStatus()
 
     data class Removed(
-        val removedAt: Time,
+        val removedAt: Instant,
         val reason: String?
     ) : TaskStatus()
 }
@@ -80,7 +89,29 @@ fun statisticTask() {
 }
 
 fun main() {
+    helloMessage()
+
     while (true) {
-        helloMessage()
+        print("> ")
+        val line = readln().trim()
+        if (line.isEmpty()) continue
+
+        val parts = line.split(Regex("\\s+"))
+        val rawCmd = parts.getOrNull(0)?.lowercase() ?: ""
+        val cmd = aliases[rawCmd] ?: rawCmd // command (example add)
+        val arg = parts.getOrNull(1) // id (example - 12)
+
+        when (cmd) {
+            "help" -> helloMessage()
+            "exit" -> break
+            "list" -> listTasks()
+            "add" -> addTask()
+            "find" -> showTasksById(/* id */)
+            "start" -> startTask(/* id */)
+            "done" -> doneTask(/* id */)
+            "del" -> deleteTask(/* id */)
+            "stat" -> statisticTask()
+            else -> println("Unknown command: $rawCmd")
+        }
     }
 }
