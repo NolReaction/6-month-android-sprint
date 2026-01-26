@@ -116,10 +116,71 @@ fun main() {
     }
     println()
 
-    // Задача 2 - Filter (List → List)
+    // Задача 2 - Filter (List -> List)
     val filtered = cars.filter { it.mileageKm < 100000 }
     val vins = filtered.map { it.vin }
 
     println("Count ${filtered.size}; VIN: $vins")
+    println()
+
+    // Задача 3 - Map/Transform (List -> List)
+    val lineCars = cars.map { "${it.model} ${it.year}: ${it.mileageKm} km" }
+    println(lineCars)
+    println()
+
+    // Задача 4 - Find min/max (List)
+    var minYearCar = cars[0]
+    var maxMileageKmCar = cars[0]
+    for (car in cars) {
+
+        if (car.year < minYearCar.year) {
+            minYearCar = car
+        }
+
+        if (car.mileageKm > maxMileageKmCar.mileageKm) {
+            maxMileageKmCar = car
+        }
+    }
+    println(minYearCar)
+    println(maxMileageKmCar)
+    println()
+
+    // Задача 5 - Set уникальных моделей (List -> Set)
+    val modelSet = cars.map { it.model }.toSet()
+    println("Unique models count = ${modelSet.size}")
+    for (m in modelSet) println(m)
+    println()
+
+    // Задача 6 - Проверка дублей VIN (List -> Set + logic)
+    var duplicateVin = 0
+    val seen = mutableSetOf<String>() // List перекидываю в set. List это линейный поиск O(n), значит весь цикл снова станет O(n²) на больших данных.
+    val dups = mutableSetOf<String>() // Тут тоже самое делаю что и с seen
+    for (car in cars) {
+        // получается, что нам надо сравнивать каждый vin со всеми возможными и так для всех O(n²) ?
+        // нужно придумать способ быстрее...
+        if (car.vin in seen) {
+            dups.add(car.vin)
+            duplicateVin++
+        } else seen.add(car.vin)
+    }
+    println("Количество дубликатов: $duplicateVin")
+    println(dups)
+    println()
+
+    // Задача 7 - Map VIN -> Car (индекс)
+    val mapVinCar = mutableMapOf<String, Car>()
+    for (car in cars) {
+        mapVinCar[car.vin] = car
+    }
+
+    for ((vin, car) in mapVinCar) {
+        println("$vin -> ${car.model} ${car.year}")
+    }
+
+    println("Тест на null")
+    val existingVin = cars[0].vin
+    val missingVin = "ABOBA3000"
+    println("Проверка по VIN первой машины: ${mapVinCar[existingVin]}")
+    println("Проверка по VIN ABOBA3000:  ${mapVinCar[missingVin]}")
     println()
 }
