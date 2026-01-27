@@ -12,7 +12,7 @@ val aliases = mapOf(
     "done" to "done",
     "del" to "del", "delete" to "del", "dl" to "del",
     "stat" to "stat",
-    "exit" to "exit", "quit" to "exit"
+    "exit" to "exit", "quit" to "exit", "q" to "exit", "e" to "exit"
 )
 
 fun helloMessage() {
@@ -41,7 +41,9 @@ enum class Priority {
 }
 
 sealed class TaskStatus {
-    object New : TaskStatus()
+    object New : TaskStatus() {
+        override fun toString() = "NEW"
+    }
 
     data class InProgress(
         val startedAt: Instant?
@@ -81,9 +83,8 @@ fun addTask(taskList: MutableList<Task>): Task {
             }
             return@run t
         }
-        error("Unreachable")
+        error("addTask: unreachable")
     }
-
 
     // Выдаём priority
     val priority: Priority
@@ -123,24 +124,139 @@ fun listTasks(taskList: List<Task>) {
     for (task in taskList) println(task)
 }
 
-fun showTasksById(id: Int?) {
-
+fun showTaskById(taskList: List<Task>, id: Int): Task? {
+    return taskList.find { it.id == id }
 }
 
-fun startTask(id: Int?) {
+fun startTask(taskList: MutableList<Task>, id: Int): Task? {
+    val index = taskList.indexOfFirst { it.id == id }
+    if (index == -1) return null
 
+    val targetTask = taskList[index]
+    if (targetTask.status !is TaskStatus.New) {
+        return targetTask
+    }
+
+    val updated = targetTask.copy(
+        status = TaskStatus.InProgress(Instant.now())
+    )
+
+    taskList[index] = updated
+    return updated
 }
 
-fun doneTask(id: Int?) {
+fun doneTask(taskList: MutableList<Task>, id: Int): Task? {
+    val index = taskList.indexOfFirst { it.id == id }
+    if (index == -1) return null
 
+    val targetTask = taskList[index]
+
+    val inProgress = targetTask.status as? TaskStatus.InProgress
+        ?: return targetTask
+
+    val startedAt = inProgress.startedAt
+        ?: return targetTask
+
+    val finishedAt = Instant.now()
+    val spentTime = Duration.between(startedAt, finishedAt)
+
+    val updated = targetTask.copy(
+        status = TaskStatus.Done(
+            finishedAt,
+            spentTime
+        )
+    )
+
+    taskList[index] = updated
+    return updated
 }
 
-fun deleteTask(id: Int?) {
+fun deleteTask(taskList: MutableList<Task>, id: Int): Task? {
+    val index = taskList.indexOfFirst { it.id == id }
+    if (index == -1) return null
 
+    val targetTask = taskList[index]
+
+    if (targetTask.status is TaskStatus.Removed) return targetTask
+
+    val updated = targetTask.copy(
+        status = TaskStatus.Removed(
+            removedAt = Instant.now(),
+            reason = null // надо потом добавить вопрос пользователю
+        )
+    )
+
+    taskList[index] = updated
+    return updated
 }
 
-fun statisticTask() {
+fun statisticTask(taskList: List<Task>): String {
+    val total = taskList.size
 
+    var new = 0
+    var inProgress = 0
+    var done = 0
+    var removed = 0
+
+    for (task in taskList) {
+        when (task.status) {
+            is TaskStatus.New -> new++
+            is TaskStatus.InProgress -> inProgress++
+            is TaskStatus.Done -> done++
+            is TaskStatus.Removed -> removed++
+        }
+    }
+
+    var high = 0
+    var medium = 0
+    var low = 0
+
+    for (task in taskList) {
+        when(task.priority) {
+            Priority.HIGH -> high++
+            Priority.MEDIUM -> medium++
+            Priority.LOW -> low++
+        }
+    }
+
+    var totalSpent = Duration.ZERO
+    var doneWithTimeCount = 0
+
+    for (task in taskList) {
+        val st = task.status
+        if (st is TaskStatus.Done) {
+            val spent = st.spentTime
+            if (spent != null) {
+                totalSpent = totalSpent.plus(spent)
+                doneWithTimeCount++
+            }
+        }
+    }
+
+    val avgSpent = if (doneWithTimeCount == 0) {
+        Duration.ZERO
+    } else {
+        totalSpent.dividedBy(doneWithTimeCount.toLong())
+    }
+
+    val resultStr = """
+        Total: $total
+        NEW: $new
+        IN_PROGRESS: $inProgress
+        DONE: $done
+        REMOVED: $removed
+
+        By priority:
+        HIGH: $high
+        MEDIUM: $medium
+        LOW: $low
+
+        Time spent (DONE):
+        Total: $totalSpent
+        Avg per task: $avgSpent
+    """.trimIndent()
+
+    return resultStr
 }
 
 fun nextId(taskList: List<Task>): Int {
@@ -176,11 +292,26 @@ fun main() {
                 println("A new task has been created:")
                 println(it)
             }
-            "find" -> if (id == null) println("Usage: find <id>") else showTasksById(id)
-            "start" -> if (id == null) println("Usage: start <id>") else startTask(id)
-            "done" -> if (id == null) println("Usage: done <id>") else doneTask(id)
-            "del" -> if (id == null) println("Usage: del <id>") else deleteTask(id)
-            "stat" -> statisticTask()
+            "find" -> if (id == null) println("Usage: find <id>") else showTaskById(taskList, id).also {
+                if (it == null) println("Non-existent id") else println(it)
+            }
+            "start" -> {
+                if (id == null) println("Usage: start <id>")
+                else startTask(taskList, id)?.also { println("Started: $it") }
+                    ?: println("Non-existent id")
+            }
+            "done" -> {
+                if (id == null) println("Usage: done <id>")
+                else doneTask(taskList, id)?.also { println("Done: $it") }
+                    ?: println("Non-existent id")
+            }
+            "del" -> {
+                if (id == null) println("Usage: del <id>")
+                else deleteTask(taskList, id)
+                    ?.also { println("Removed: $it") }
+                    ?: println("Non-existent id")
+            }
+            "stat" -> println(statisticTask(taskList))
             else -> println("Unknown command: $rawCmd")
         }
     }
