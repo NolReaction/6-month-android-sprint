@@ -68,7 +68,35 @@ fun main() {
         Purchase("Oksana", "Tech", 110)
     )
 
+    // 1) min/max
+    fun List<Purchase>.minAmount(): Int? =
+        this.minOfOrNull { it.amount }
 
+    fun List<Purchase>.maxAmount(): Int? =
+        this.maxOfOrNull { it.amount }
+
+    // 2) avg
+    fun List<Purchase>.avgAmount(): Double? =
+        if (this.isEmpty()) null else this.map { it.amount }.average()
+
+    // 3) total by category
+    fun List<Purchase>.totalByCategory(): Map<String, Int> =
+        this.groupingBy { it.category }
+            .fold(0) { acc, p -> acc + p.amount }
+
+    // 4) top-N categories by total
+    fun List<Purchase>.topCategories(n: Int): List<Pair<String, Int>> =
+        this.totalByCategory()
+            .toList()
+            .sortedByDescending { it.second }
+            .take(n.coerceAtLeast(0))
+
+    println("min = ${purchases.minAmount()}")
+    println("max = ${purchases.maxAmount()}")
+    println("avg = ${purchases.avgAmount()}")
+    println("totalByCategory = ${purchases.totalByCategory()}")
+    println("top2 = ${purchases.topCategories(2)}")
+    println("top3 = ${purchases.topCategories(3)}")
 
     // Допы
     data class Message(val user: String, val text: String, val likes: Int)
@@ -90,9 +118,27 @@ fun main() {
         .groupingBy { it.user }
         .fold(0) {acc, msg -> acc + msg.likes}
     println(countOfLikesEveryUser)
+    println()
 
     val countOfMessageEveryUser = messages
         .groupingBy { it.user }.eachCount()
     println(countOfMessageEveryUser)
+    println()
 
+
+    val taskC = messages.groupBy { msg ->
+        msg.text.first().lowercaseChar()
+    }
+    println(taskC)
+    println()
+
+    val taskD = messages
+        .groupingBy { it.user }
+        .fold(0) {acc, msg -> acc + msg.likes}
+        .toList()
+        .sortedByDescending { it.second }
+        .take(3)
+
+    println(taskD)
+    println()
 }
